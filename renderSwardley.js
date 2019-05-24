@@ -6,7 +6,11 @@ var mapScript = {
 			id: "1",
 			name: "Element 1",
 			visibility: 0.25,
-			maturity: 0.75
+			maturity: 0.75,
+						circlecolour: "red",
+									outercirclecoulour: "blue"
+
+
 		},
 		{
 			id: "2",
@@ -59,7 +63,7 @@ var renderArrow = function(startElement, endmaturity, mapWidth, mapHeight) {
         var yat = y1-10;
         var yab = y1+10;
         var xp = xx1+10;
-	return '<line x1="'+x1+'" y1="'+y1+'" x2="'+xx1+'" y2="'+y1+'" stroke="grey" stroke-width="3"/> <polygon points="'+xx1+','+yat+' '+xx1+' ,'+yab+' '+xp+','+y1+'" class="traingle"  />';
+	return '<line x1="'+x1+'" y1="'+y1+'" x2="'+xx1+'" y2="'+y1+'" stroke="grey" stroke-width="3" stroke-dasharray="4 4"/> <polygon points="'+xx1+','+yat+' '+xx1+' ,'+yab+' '+xp+','+y1+'" class="traingle"  />';
 
 };
 
@@ -80,20 +84,37 @@ var renderLinks = function(mapScript, mapWidth, mapHeight) {
 
 
 var renderArrows = function(mapScript, mapWidth, mapHeight) {
-        var mapArrow = function(climate) {
-                return renderArrow(getElementById(mapScript.elements,climate.start), climate.maturity, mapWidth, mapHeight);
+        var mapArrow = function(arrow) {
+                return renderArrow(getElementById(mapScript.elements,arrow.start), arrow.maturity, mapWidth, mapHeight);
         };
-        return mapScript.climate.map(mapArrow).join('');
+        return mapScript.arrow.map(mapArrow).join('');
 };
 
 
 var renderElement = function(element, mapWidth, mapHeight) {
 	var x = matToX(element.maturity, mapWidth);
 	var y = visToY(element.visibility, mapHeight);
-
+	var outerCircleColour="";
+	var circleColour="";
+	if(element.outercirclecolour){
+		outerCircleColour=
+				'<circle cx="0" cy="0" r="10" stroke="black" fill="' +
+				element.outercirclecolour +
+				'" />'
+			;
+	}
+	
+	if(element.circlecolour){
+		circleColour=element.circlecolour;
+	} else {
+		circleColour='white';
+	}
+	
 	var elementSvg =
 		'<g id="'+element.name+'" transform="translate('+x+','+y+')">' +
-          '<circle cx="0" cy="0" r="5" stroke="black" fill="white" />' +
+					outerCircleColour +
+					'<circle cx="0" cy="0" r="5" stroke="black" fill="' +
+					circleColour + '" />' +
           '<text x="10" y="-5" text-anchor="start">' +
           	element.name +
           '</text>  ' +
@@ -101,6 +122,8 @@ var renderElement = function(element, mapWidth, mapHeight) {
 
     return elementSvg;
 };
+
+
 
 var renderElements = function(mapScript, mapWidth, mapHeight){
 	var mapElement = function (element) {
