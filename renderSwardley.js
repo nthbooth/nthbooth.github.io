@@ -7,8 +7,8 @@ var mapScript = {
 			name: "Element 1",
 			visibility: 0.25,
 			maturity: 0.75,
-						circlecolour: "red",
-									outercirclecoulour: "blue"
+			circlecolour: "red",
+			outercirclecoulour: "blue"
 
 
 		},
@@ -25,8 +25,8 @@ var mapScript = {
 			end: "2"
 		}
 	],
-        climate: [
-        {start: "1", maturity: "0.8" }
+        arrow: [
+        {start: "1", maturity: "0.8" , reverse: "true"}
         ]
 
 }; */
@@ -46,27 +46,10 @@ var renderLink = function(startElement, endElement, mapWidth, mapHeight) {
 	var x2 = matToX(endElement.maturity, mapWidth);
 	var y1 = visToY(startElement.visibility, mapHeight);
 	var y2 = visToY(endElement.visibility, mapHeight);
-	var x1b = x1+100;
-	var xx1 =x1+100;
-	var yat = y1-10;
-	var yab = y1+10;
-	var xp = xx1+10;
 	
 	return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="grey" />';
 
 };
-
-var renderArrow = function(startElement, endmaturity, mapWidth, mapHeight) {
-        var x1 = matToX(startElement.maturity, mapWidth);
-        var xx1 = matToX(endmaturity, mapWidth);
-        var y1 = visToY(startElement.visibility, mapHeight);
-        var yat = y1-10;
-        var yab = y1+10;
-        var xp = xx1+10;
-	return '<line x1="'+x1+'" y1="'+y1+'" x2="'+xx1+'" y2="'+y1+'" stroke="grey" stroke-width="3" stroke-dasharray="4 4"/> <polygon points="'+xx1+','+yat+' '+xx1+' ,'+yab+' '+xp+','+y1+'" class="traingle"  />';
-
-};
-
 
 var getElementById = function(elements, id) {
 	var hasId = function(element) {
@@ -80,14 +63,6 @@ var renderLinks = function(mapScript, mapWidth, mapHeight) {
 		return renderLink(getElementById(mapScript.elements,link.start), getElementById(mapScript.elements,link.end), mapWidth, mapHeight);
 	};
 	return mapScript.links.map(mapLink).join('');
-};
-
-
-var renderArrows = function(mapScript, mapWidth, mapHeight) {
-        var mapArrow = function(arrow) {
-                return renderArrow(getElementById(mapScript.elements,arrow.start), arrow.maturity, mapWidth, mapHeight);
-        };
-        return mapScript.arrow.map(mapArrow).join('');
 };
 
 
@@ -109,17 +84,43 @@ var renderElement = function(element, mapWidth, mapHeight) {
 	} else {
 		circleColour='white';
 	}
+	var arrow_svg="";
+
+	// arrowreverse
+	if(element.arrowmaturity){
+		var xx1= matToX(element.arrowmaturity, mapWidth);
+		if(element.arrowreverse){
+			var yat = y-10;
+			var yab = y+10;
+			var xb = x+10;	
+			arrow_svg='<line x1="'+x+'" y1="'+y+'" x2="'+xx1+'" y2="'+y+'" stroke="red" stroke-width="3" stroke-dasharray="4 4"/>'+
+					'<polygon points="'+xb+','+yat+' '+xb+' ,'+yab+' '+x+','+y+'" class="traingle" style="fill:red" />';						
+		}else{
+			var yat = y-10;
+			var yab = y+10;
+			var xp = xx1+10;
+			arrow_svg='<line x1="'+x+'" y1="'+y+'" x2="'+xx1+'" y2="'+y+'" stroke="red" stroke-width="3" stroke-dasharray="4 4"/>'+ 
+					'<polygon points="'+xx1+','+yat+' '+xx1+' ,'+yab+' '+xp+','+y+'" class="traingle"  style="fill:red" />';
+		}
+	}
+	var inertiasvg="";
+	if(element.inertiamaturity)
+	{
+		var xxinertia=matToX(element.inertiamaturity, mapWidth)-7.5;
+		var yat = y-15;
+		inertiasvg='<rect x="'+xxinertia+'" y="'+yat+'" width="10" height="30" style="fill:black"/>';
+	}
 	
 	var elementSvg =
 		'<g id="'+element.name+'" transform="translate('+x+','+y+')">' +
 					outerCircleColour +
 					'<circle cx="0" cy="0" r="5" stroke="black" fill="' +
-					circleColour + '" />' +
-          '<text x="10" y="-5" text-anchor="start">' +
+					circleColour + '" />' + 
+          '<text x="10" y="-5" text-anchor="start">' + 
           	element.name +
-          '</text>  ' +
-        '</g>';
-
+          '</text>  ' + 
+		'</g></g>'+
+		'<g id="arrowbits">' + arrow_svg + inertiasvg;
     return elementSvg;
 };
 
@@ -141,9 +142,7 @@ var renderMap = function(mapScript, mapWidth, mapHeight) {
 	      '</g>' +
 	      '<g id="elements">' +
 	      	renderElements(mapScript, mapWidth, mapHeight) +
-	      '</g>' +
-	       'g id="arrows">' + 
-		 renderArrows(mapScript, mapWidth, mapHeight) +
+	    
 
 	   	'</g></g>';
 
