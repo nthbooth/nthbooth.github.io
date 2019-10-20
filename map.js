@@ -57,7 +57,6 @@ var mapScript = {
 			visibility: 0.2,
 			maturity: 0.725,
 			arrowmaturity: 0.9,
-			arrowreverse: "true"
 		},
 		{
 			id: "9",
